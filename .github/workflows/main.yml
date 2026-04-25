@@ -1,0 +1,37 @@
+name: SCA and Sast
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  sast:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: extra-assignment-1-juanCpy-2
+          format: HTML
+
+
+      - name: Upload Dependency-Check report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: ./dependency-report.html
+
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install Semgrep
+        run: pip install semgrep
+      
+      - name: Run Semgrep (fail on findings)
+        run: semgrep --config=auto --error
