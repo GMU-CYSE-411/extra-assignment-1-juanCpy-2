@@ -4,15 +4,21 @@ async function loadSettings(userId) {
 
   document.getElementById("settings-form-user-id").value = settings.userId;
   document.getElementById("settings-user-id").value = settings.userId;
-
+  const escapeHtml = s => s.
+    replace(/&/g, "&amp;").
+    replace(/</g, "&lt;").
+    replace(/>/g, "&gt;").
+    replace(/"/g, "&quot;").
+    replace(/'/g, "&#39;");
   const form = document.getElementById("settings-form");
   form.elements.displayName.value = settings.displayName;
   form.elements.theme.value = settings.theme;
   form.elements.statusMessage.value = settings.statusMessage;
   form.elements.emailOptIn.checked = Boolean(settings.emailOptIn);
+  //Escaping fields to make sure that XSS is not possible.
   document.getElementById("status-preview").innerHTML = `
-    <p><strong>${settings.displayName}</strong></p>
-    <p>${settings.statusMessage}</p>
+    <p><strong>${escapeHtml(settings.displayName)}</strong></p>
+    <p>${escapeHtml(settings.statusMessage)}</p>
   `;
 
   writeJson("settings-output", settings);

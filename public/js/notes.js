@@ -1,9 +1,16 @@
+//Escaping to prevent XSS before rendering the note card.
 function noteCard(note) {
+  const escapeHtml = s => s.
+    replace(/&/g, "&amp;").
+    replace(/</g, "&lt;").
+    replace(/>/g, "&gt;").
+    replace(/"/g, "&quot;").
+    replace(/'/g, "&#39;");
   return `
     <article class="note-card">
-      <h3>${note.title}</h3>
-      <p class="note-meta">Owner: ${note.ownerUsername} | ID: ${note.id} | Pinned: ${note.pinned}</p>
-      <div class="note-body">${note.body}</div>
+      <h3>${escapeHtml(note.title)}</h3>
+      <p class="note-meta">Owner: ${escapeHtml(note.ownerUsername)} | ID: ${escapeHtml(String(note.id))} | Pinned: ${escapeHtml(String(note.pinned))}</p>
+      <div class="note-body">${escapeHtml(note.body)}</div>
     </article>
   `;
 }
@@ -18,7 +25,6 @@ async function loadNotes(ownerId, search) {
   if (search) {
     query.set("search", search);
   }
-
   const result = await api(`/api/notes?${query.toString()}`);
   const notesList = document.getElementById("notes-list");
   notesList.innerHTML = result.notes.map(noteCard).join("");

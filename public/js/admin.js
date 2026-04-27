@@ -13,17 +13,24 @@
     } else {
       document.getElementById("admin-warning").textContent = "Authenticated as admin.";
     }
-
+    //InnerHTML was used here, which could have be used for XSS. Switched to textContent, which is safe.
     const result = await api("/api/admin/users");
-    document.getElementById("admin-users").innerHTML = result.users
+    const escapeHtml = s => s.
+    replace(/&/g, "&amp;").
+    replace(/</g, "&lt;").
+    replace(/>/g, "&gt;").
+    replace(/"/g, "&quot;").
+    replace(/'/g, "&#39;");
+    //Escaping fields to make sure that XSS is not possibe. While this is also prevented in the server, this is another layer.
+    document.getElementById("admin-users").textContent = result.users
       .map(
         (entry) => `
           <tr>
-            <td>${entry.id}</td>
-            <td>${entry.username}</td>
-            <td>${entry.role}</td>
-            <td>${entry.displayName}</td>
-            <td>${entry.noteCount}</td>
+            <td>${escapeHtml(String(entry.id))}</td>
+            <td>${escapeHtml(entry.username)}</td>
+            <td>${escapeHtml(entry.role)}</td>
+            <td>${escapeHtml(entry.displayName)}</td>
+            <td>${escapeHtml(String(entry.noteCount))}</td>
           </tr>
         `
       )
